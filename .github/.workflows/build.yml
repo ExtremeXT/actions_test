@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x1s]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Get Gofile Server
+        id: gofile_server
+        run: |
+          apt install -y jq
+          SERVER=$(curl -s https://api.gofile.io/getServer | jq -r '.data.server')
+          echo "server=$SERVER" >> "$GITHUB_OUTPUT"
+
+      - name: Upload ZIP to Gofile with API key
+        id: upload
+        run: |
+          RESPONSE=$(curl -s -F "file=@${{ steps.zipinfo.outputs.zipfile }}" \
+            -F "token=${{ secrets.GOFILE_TOKEN }}" \
+            "https://${{ steps.gofile_server.outputs.server }}.gofile.io/uploadFile")
+
+          echo "$RESPONSE" > gofile_response.json
+
+          # Print download link
+          echo "Download URL:"
+          echo "$RESPONSE" | jq -r '.data.downloadPage'
