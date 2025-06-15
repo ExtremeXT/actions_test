@@ -18,23 +18,17 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Get Gofile Server
-        id: gofile_server
+      - name: Upload .zip to Gofile with token
         run: |
-          sudo apt update
-          DEBIAN_FRONTEND=noninteractive sudo apt install -yq jq
-          SERVER=$(curl -s https://api.gofile.io/getServer | jq -r '.data.server')
-          echo "server=$SERVER" >> "$GITHUB_OUTPUT"
+          # Set values
+          FILE="${{ steps.zipinfo.outputs.zipfile }}"
+          TOKEN="${{ secrets.GOFILE_TOKEN }}"
+          ENDPOINT="https://upload.gofile.io/uploadFile"  # change to a regional one if desired
 
-      - name: Upload ZIP to Gofile with API key
-        id: upload
-        run: |
-          RESPONSE=$(curl -s -F "file=@${{ steps.zipinfo.outputs.zipfile }}" \
-            -F "token=${{ secrets.GOFILE_TOKEN }}" \
-            "https://${{ steps.gofile_server.outputs.server }}.gofile.io/uploadFile")
+          # Prepare curl command
+          RESPONSE=$(curl -s -F "file=@$FILE" -F "token=$TOKEN" "$ENDPOINT")
 
+          # Show result
           echo "$RESPONSE" > gofile_response.json
-
-          # Print download link
-          echo "Download URL:"
+          echo "Download link:"
           echo "$RESPONSE" | jq -r '.data.downloadPage'
