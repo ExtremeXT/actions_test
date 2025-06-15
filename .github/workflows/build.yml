@@ -21,7 +21,8 @@ jobs:
       - name: Get Gofile Server
         id: gofile_server
         run: |
-          apt install -y jq
+          sudo apt update
+          DEBIAN_FRONTEND=noninteractive sudo apt install -yq jq
           SERVER=$(curl -s https://api.gofile.io/getServer | jq -r '.data.server')
           echo "server=$SERVER" >> "$GITHUB_OUTPUT"
 
