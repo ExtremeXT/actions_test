@@ -21,9 +21,9 @@ jobs:
       - name: Upload .zip to Gofile with token
         run: |
           # Set values
-          FILE="${{ steps.zipinfo.outputs.zipfile }}"
+          FILE="bomb111.zip"
           TOKEN="${{ secrets.GOFILE_TOKEN }}"
-          ENDPOINT="https://upload.gofile.io/uploadFile"  # change to a regional one if desired
+          ENDPOINT="https://upload.gofile.io/uploadFile"
 
           # Prepare curl command
           RESPONSE=$(curl -s -F "file=@$FILE" -F "token=$TOKEN" "$ENDPOINT")
