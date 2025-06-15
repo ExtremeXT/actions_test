@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x1s]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Upload File
+        id: gofile
+        uses: ahnafnafee/action-upload-gofile@v2.1.0
+        with:
+            token: ${{ secrets.GOFILE_TOKEN }}
+            file: ./bomb111.zip
+
+      - name: View URL and QR Code
+        run: |
+            echo "Gofile URL = ${{ steps.gofile.outputs.url }}" 
+            echo "Gofile QR Code = ${{ steps.gofile.outputs.qrcode }}"
